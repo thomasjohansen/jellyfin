@@ -5712,7 +5712,7 @@ namespace MediaBrowser.Controller.MediaEncoding
 
             if (!string.IsNullOrEmpty(ffmpegProbeSize))
             {
-                Console.WriteLine("Setting -probesize to", ffmpegProbeSize);
+                Console.WriteLine("Setting -probesize to" + ffmpegProbeSize);
 
                 inputModifier += " -probesize " + ffmpegProbeSize;
                 inputModifier = inputModifier.Trim();
