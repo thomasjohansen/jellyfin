@@ -5689,6 +5689,7 @@ namespace MediaBrowser.Controller.MediaEncoding
 
             // Apply -analyzeduration as per the environment variable,
             // otherwise ffmpeg will break on certain files due to default value is 0.
+            // The default value of -probesize is more than enough, so leave it as is.
             var ffmpegAnalyzeDuration = _config.GetFFmpegAnalyzeDuration() ?? string.Empty;
 
             if (state.MediaSource.AnalyzeDurationMs > 0)
@@ -5706,17 +5707,6 @@ namespace MediaBrowser.Controller.MediaEncoding
             }
 
             inputModifier = inputModifier.Trim();
-
-            // Apply -probesize if configured
-            var ffmpegProbeSize = _config.GetFFmpegProbeSize();
-
-            if (!string.IsNullOrEmpty(ffmpegProbeSize))
-            {
-                Console.WriteLine("Setting -probesize to" + ffmpegProbeSize);
-
-                inputModifier += " -probesize " + ffmpegProbeSize;
-                inputModifier = inputModifier.Trim();
-            }
 
             var userAgentParam = GetUserAgentParam(state);
 
