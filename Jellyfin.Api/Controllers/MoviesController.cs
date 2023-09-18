@@ -199,6 +199,7 @@ public class MoviesController : BaseJellyfinApiController
                     PersonTypes = new[] { PersonType.Director },
                     IncludeItemTypes = itemTypes.ToArray(),
                     IsMovie = true,
+                    IsPlayed = false,
                     EnableGroupByMetadataKey = true,
                     DtoOptions = dtoOptions
                 }).DistinctBy(i => i.GetProviderId(MediaBrowser.Model.Entities.MetadataProvider.Imdb) ?? Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture))
@@ -238,6 +239,7 @@ public class MoviesController : BaseJellyfinApiController
                 Limit = itemLimit + 2,
                 IncludeItemTypes = itemTypes.ToArray(),
                 IsMovie = true,
+                IsPlayed = false,
                 EnableGroupByMetadataKey = true,
                 DtoOptions = dtoOptions
             }).DistinctBy(i => i.GetProviderId(MediaBrowser.Model.Entities.MetadataProvider.Imdb) ?? Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture))
