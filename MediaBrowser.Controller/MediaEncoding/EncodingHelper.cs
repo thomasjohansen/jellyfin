@@ -48,6 +48,7 @@ namespace MediaBrowser.Controller.MediaEncoding
         private readonly Version _minFFmpegHwaUnsafeOutput = new Version(6, 0);
         private readonly Version _minFFmpegOclCuTonemapMode = new Version(5, 1, 3);
         private readonly Version _minFFmpegSvtAv1Params = new Version(5, 1);
+        private readonly Version _minFFmpegVaapiH26xEncA53CcSei = new Version(6, 0);
 
         private static readonly string[] _videoProfilesH264 = new[]
         {
@@ -2006,6 +2007,14 @@ namespace MediaBrowser.Controller.MediaEncoding
                 param += " -svtav1-params:0 rc=1:tune=0:film-grain=0:enable-overlays=1:enable-tf=0";
             }
 
+            /* Access unit too large: 8192 < 20880 error */
+            if ((string.Equals(videoEncoder, "h264_vaapi", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(videoEncoder, "hevc_vaapi", StringComparison.OrdinalIgnoreCase)) &&
+                 _mediaEncoder.EncoderVersion >= _minFFmpegVaapiH26xEncA53CcSei)
+            {
+                param += " -sei -a53_cc";
+            }
+
             return param;
         }
 
@@ -3822,12 +3831,6 @@ namespace MediaBrowser.Controller.MediaEncoding
                         // map from d3d11va to qsv.
                         mainFilters.Add("hwmap=derive_device=qsv");
                     }
-                    else
-                    {
-                        // Insert a qsv scaler to sync the decoder surface,
-                        // msdk will passthrough this internally.
-                        mainFilters.Add("hwmap=derive_device=qsv,scale_qsv");
-                    }
                 }
 
                 // hw deint
@@ -5252,10 +5255,8 @@ namespace MediaBrowser.Controller.MediaEncoding
 
                     if (isD3d11Supported && isCodecAvailable)
                     {
-                        // set -threads 3 to intel d3d11va decoder explicitly. Lower threads may result in dead lock.
-                        // on newer devices such as Xe, the larger the init_pool_size, the longer the initialization time for opencl to derive from d3d11.
                         return " -hwaccel d3d11va" + (outputHwSurface ? " -hwaccel_output_format d3d11" : string.Empty)
-                            + (profileMismatch ? " -hwaccel_flags +allow_profile_mismatch" : string.Empty) + " -threads 3" + (isAv1 ? " -c:v av1" : string.Empty);
+                            + (profileMismatch ? " -hwaccel_flags +allow_profile_mismatch" : string.Empty) + " -threads 2" + (isAv1 ? " -c:v av1" : string.Empty);
                     }
                 }
                 else
